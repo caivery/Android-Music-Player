@@ -20,6 +20,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -244,7 +247,36 @@ public class MusicPlayerTabWidget extends TabActivity {
 		return audioFiles;
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.mymenu, menu);
+		return true;
+	}
 	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle item selection
+		switch (item.getItemId()) {
+		case R.id.exit:
+			exitMusicPlayer();
+	
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	private void exitMusicPlayer() {
+//		mService.stopSelf();
+		this.finish();
+		
+		this.unbindService(mConnection);
+		
+		Intent intent = new Intent(this, MusicService.class);
+        this.stopService(intent);
+        
+	}
+
 	// ----------------------------------------------------------------
 	
 	private Handler updateHandler = new Handler();

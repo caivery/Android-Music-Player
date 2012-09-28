@@ -68,6 +68,7 @@ containing a value of this type.
         public static final int up_down=0x7f020007;
     }
     public static final class id {
+        public static final int exit=0x7f040013;
         public static final int fileListView=0x7f040010;
         public static final int fling=0x7f040001;
         public static final int icon=0x7f040005;
@@ -93,8 +94,12 @@ containing a value of this type.
         public static final int main=0x7f030001;
         public static final int playlist_item=0x7f030002;
     }
+    public static final class menu {
+        public static final int mymenu=0x7f060000;
+    }
     public static final class string {
         public static final int app_name=0x7f050001;
+        public static final int exit=0x7f050002;
         public static final int hello=0x7f050000;
     }
     public static final class styleable {
