@@ -406,6 +406,7 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 
     @Override
     public void onDestroy() {
+    	Utils.log(TAG, "onDestroy()");
         // Service is being killed, so make sure we release our resources
         mState = State.Stopped;
         relaxResources(true);

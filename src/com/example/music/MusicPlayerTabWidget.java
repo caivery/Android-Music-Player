@@ -173,6 +173,8 @@ public class MusicPlayerTabWidget extends TabActivity {
         super.onStart();
         // Bind to LocalService
         Intent intent = new Intent(this, MusicService.class);
+
+        this.startService(intent);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         
         // Start the updater
