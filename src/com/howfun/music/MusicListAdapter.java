@@ -1,4 +1,4 @@
-package com.example.music;
+package com.howfun.music;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;

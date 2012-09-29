@@ -1,4 +1,4 @@
-package com.example.music;
+package com.howfun.music;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -19,6 +19,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,14 +36,17 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.commonsware.cwac.tlv.TouchListView;
-import com.example.music.MusicService.LocalBinder;
+
+import com.howfun.music.MusicService.State;
+import com.howfun.music.control.IMusicService;
 
 public class MusicPlayerTabWidget extends TabActivity {
-    MusicListAdapter playListAdapter;
+    protected static final String TAG = "MusicPlayerTabWidget";
+	MusicListAdapter playListAdapter;
     PlayList playList = PlayList.instance;
     
     // TODO what to do if mService is null when we try to use it?
-    MusicService mService = null;
+    IMusicService mService = null;
 
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
@@ -54,7 +58,11 @@ public class MusicPlayerTabWidget extends TabActivity {
 	    View.OnClickListener playPauseListener = new View.OnClickListener() {
 	    	public void onClick(View v) {
 	    		if (mService != null) {
-	    			mService.processPlayPauseRequest();
+	    			try {
+						mService.processPlayPauseRequest();
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
 	    		}
 	    	}
 	    };
@@ -66,7 +74,11 @@ public class MusicPlayerTabWidget extends TabActivity {
 	    SeekBar.OnSeekBarChangeListener seekListener = new SeekBar.OnSeekBarChangeListener() {
 	    	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 	    		if (fromUser && mService != null) {
-	    			mService.setPosition(progress);
+	    			try {
+						mService.setPosition(progress);
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
 	    		}
 	    	}
 	    	
@@ -109,7 +121,12 @@ public class MusicPlayerTabWidget extends TabActivity {
 						Toast.LENGTH_SHORT).show();
 				
 				if (mService != null) {
-	    			mService.processPlayNowRequest();
+	    			try {
+						mService.processPlayNowRequest();
+					} catch (RemoteException e) {
+						
+						e.printStackTrace();
+					}
 	    		}
 				return true;
 			}
@@ -150,7 +167,12 @@ public class MusicPlayerTabWidget extends TabActivity {
 				playList.files.add(0, file);
 				playListAdapter.notifyDataSetChanged();
 				if (mService != null) {
-	    			mService.processPlayNowRequest();
+	    			try {
+						mService.processPlayNowRequest();
+					} catch (RemoteException e) {
+						
+						e.printStackTrace();
+					}
 	    		}
 				return true;
 			}
@@ -184,17 +206,17 @@ public class MusicPlayerTabWidget extends TabActivity {
         updateHandler.postDelayed(new Updater(), 100);
     }
 	
-	/** Defines callbacks for service binding, passed to bindService() */
+	/** Get a Servie from AIDL Binder */
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            LocalBinder binder = (LocalBinder) service;
-            mService = binder.getService();
+        	//Get Binder
+        	mService = IMusicService.Stub.asInterface(service);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+        	Utils.log(TAG, "onService disconnected.");
         	mService = null;
         }
     };
@@ -280,6 +302,7 @@ public class MusicPlayerTabWidget extends TabActivity {
 	// ----------------------------------------------------------------
 	
 	private Handler updateHandler = new Handler();
+	int mMusicState = State.Paused.ordinal();
 	
     private class Updater implements Runnable {
     	public void run() {
@@ -288,23 +311,42 @@ public class MusicPlayerTabWidget extends TabActivity {
     		ImageView play = (ImageView) findViewById(R.id.playPauseIcon);
     	    
     		if (playList.getCurrent() != null) {
-    			int position = mService.getPosition();
+    			int position;
+				try {
+					position = mService.getPosition();
+				} catch (RemoteException e) {
+					e.printStackTrace();
+					return;
+				}
     			int duration = (int) playList.getCurrent().getDuration();
     		
 	    	    playTime.setText(AudioFile.formatDuration(position) + " / " + AudioFile.formatDuration(duration));
 	    	    bar.setMax(duration);
 	    	    bar.setProgress(position);
 	    	    
-	    	    switch (mService.mState) {
-	    	    	case Stopped:
-	    	    	case Paused:
-	    	    		play.setImageResource(R.drawable.play);
-	    	    		break;
-	    	    	case Preparing:
-	    	    	case Playing:
-	    	    		play.setImageResource(R.drawable.pause);
-	    	    		break;
+	    	    try {
+					mMusicState = mService.getState();
+				} catch (RemoteException e) {
+					e.printStackTrace();
+					return;
+				}
+	    	    if (mMusicState == State.Stopped.ordinal()
+	    	    		|| mMusicState == State.Paused.ordinal()) {
+	    	    	play.setImageResource(R.drawable.play);
+	    	    } else if (mMusicState == State.Preparing.ordinal() ||
+	    	    		mMusicState == State.Playing.ordinal()) {
+	    	    	play.setImageResource(R.drawable.pause);
 	    	    }
+//	    	    switch (mService.mState) {
+//	    	    	case mState.Stopped:
+//	    	    	case Paused:
+//	    	    		play.setImageResource(R.drawable.play);
+//	    	    		break;
+//	    	    	case Preparing:
+//	    	    	case Playing:
+//	    	    		play.setImageResource(R.drawable.pause);
+//	    	    		break;
+//	    	    }
     		}
     		else {
     			playTime.setText("");

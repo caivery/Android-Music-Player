@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.music;
+package com.howfun.music;
 
 import android.content.Context;
 import android.media.AudioManager;

@@ -1,4 +1,4 @@
-package com.example.music;
+package com.howfun.music;
 
 import android.content.ContentUris;
 import android.net.Uri;

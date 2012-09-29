@@ -67,7 +67,7 @@
 				        android:gravity="center" />
 		        </FrameLayout>
 	            <com.commonsware.cwac.tlv.TouchListView
-	            	xmlns:tlv="http://schemas.android.com/apk/res/com.example.music"
+	            	xmlns:tlv="http://schemas.android.com/apk/res/com.howfun.music"
 	            	android:id="@+id/playListList"
 	                android:layout_width="fill_parent"
 	                android:layout_height="fill_parent"

@@ -20,9 +20,11 @@
 // and:
 // http://developer.android.com/guide/topics/fundamentals/bound-services.html
 
-package com.example.music;
+package com.howfun.music;
 
 import java.io.IOException;
+
+import com.howfun.music.control.IMusicService;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -38,6 +40,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -413,25 +416,39 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         giveUpAudioFocus();
     }
     
-    // ---------------------------------------------------------------------------
-    
-    /**
-     * Class used for the client Binder.  Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with IPC.
-     */
-    public class LocalBinder extends Binder {
-    	MusicService getService() {
-            // Return this instance of LocalService so clients can call public methods
-            return MusicService.this;
-        }
-    }
-    
-    // Binder given to clients
-    private final IBinder mBinder = new LocalBinder();
+    // ---------------------------------New a Binder for IPC------------------------------------------
+    private final IMusicService.Stub stub = new IMusicService.Stub() 
+	{
+		@Override
+		public void processPlayNowRequest() throws RemoteException {
+			MusicService.this.processPlayNowRequest();
+		}
+
+		@Override
+		public void processPlayPauseRequest() throws RemoteException {
+			MusicService.this.processPlayPauseRequest();
+		}
+
+		@Override
+		public int getPosition() throws RemoteException {
+			return MusicService.this.getPosition();
+		}
+
+		@Override
+		public void setPosition(int pos) throws RemoteException {
+			MusicService.this.setPosition(pos);
+		}
+
+		@Override
+		public int getState() throws RemoteException {
+			return mState.ordinal();
+		} 
+    	
+	} ; 
 
     @Override
     public IBinder onBind(Intent arg0) {
-        return mBinder;
+    	return stub;
     }
     
     public int getPosition() {

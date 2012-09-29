@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.example.music"
+      package="com.howfun.music"
       android:versionCode="1"
       android:versionName="1.0">
       
@@ -9,7 +9,7 @@
 
     <application android:icon="@drawable/play" android:label="@string/app_name">
     
-    	<activity android:name=".MusicPlayerTabWidget"
+    	<activity android:name="com.howfun.music.MusicPlayerTabWidget"
     			  android:label="@string/app_name"
           		  android:theme="@android:style/Theme.NoTitleBar"
           		  android:configChanges="orientation">
@@ -19,12 +19,12 @@
             </intent-filter>
   		</activity>
     
-        <service android:exported="false" android:name=".MusicService">
+        <service android:exported="true" android:name="com.howfun.music.MusicService">
             <intent-filter>
             </intent-filter>
         </service>
 
-        <receiver android:name=".MusicIntentReceiver">
+        <receiver android:name="com.howfun.music.MusicIntentReceiver">
             <intent-filter>
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>

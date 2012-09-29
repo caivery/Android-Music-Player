@@ -17,7 +17,7 @@
 
 package com.commonsware.cwac.tlv;
 
-import com.example.music.R;
+import com.howfun.music.R;
 
 import android.content.Context;
 import android.content.res.TypedArray;
