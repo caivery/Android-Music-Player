@@ -284,6 +284,22 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
     void say(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
+    
+    private Uri getCurAlbumUri() {
+    	if (playList != null) {
+    		if (playList.getCurrent() != null) 
+    			return playList.getCurrent().getImageUri();
+    	}
+    	return null;
+    }
+        
+    private String getCurDisplayString() {
+    	if (playList != null) {
+    		if (playList.getCurrent() != null) 
+    			return playList.getCurrent().toString();
+    	}
+    	return null;
+    }
 
     void tryToGetAudioFocus() {
         if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null
@@ -451,6 +467,17 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 		public void stop() throws RemoteException {
 			MusicService.this.processStopRequest();
 			
+		}
+
+		@Override
+		public String getCurDisplayStr() throws RemoteException {
+			return MusicService.this.getCurDisplayString();
+		}
+
+		@Override
+		public Uri getAlbumUri() throws RemoteException {
+		
+			return MusicService.this.getCurAlbumUri();
 		} 
     	
 	} ; 

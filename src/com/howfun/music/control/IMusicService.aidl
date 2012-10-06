@@ -1,6 +1,5 @@
 package com.howfun.music.control;
 
-
 interface IMusicService
 { 
     void processPlayPauseRequest();
@@ -15,5 +14,7 @@ interface IMusicService
     
     void stop();
     
-
+    String getCurDisplayStr();
+    
+    Uri getAlbumUri();
 } 

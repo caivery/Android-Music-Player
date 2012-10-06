@@ -16,6 +16,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -202,6 +203,7 @@ public class MusicPlayerTabWidget extends TabActivity {
         this.startService(intent);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         
+        
         // Start the updater
         updateHandler.postDelayed(new Updater(), 100);
     }
@@ -212,6 +214,7 @@ public class MusicPlayerTabWidget extends TabActivity {
         public void onServiceConnected(ComponentName className, IBinder service) {
         	//Get Binder
         	mService = IMusicService.Stub.asInterface(service);
+        	updatePlayingInfo();
         }
 
         @Override
@@ -269,6 +272,24 @@ public class MusicPlayerTabWidget extends TabActivity {
 		return audioFiles;
 	}
 
+	/**
+	 * Update playing info by querying the music service.
+	 */
+	protected void updatePlayingInfo() {
+		if (mService != null) {
+			try {
+				String display = mService.getCurDisplayStr();
+				Uri albumUri = mService.getAlbumUri();
+				updateMusicInfo(display, albumUri);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+	}
+
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -289,11 +310,7 @@ public class MusicPlayerTabWidget extends TabActivity {
 	}
 	
 	private void exitMusicPlayer() {
-//		mService.stopSelf();
-		
-		
-		this.unbindService(mConnection);
-		
+
 		Intent intent = new Intent(this, MusicService.class);
         this.stopService(intent);
         
@@ -361,13 +378,20 @@ public class MusicPlayerTabWidget extends TabActivity {
     }
     
     public void changeFile(AudioFile file) {
-		ImageView art = (ImageView) findViewById(R.id.playingIcon);
+    	if (file != null) {
+    		updateMusicInfo(file.toString(), file.getImageUri());
+    	}
+    }
+    
+    private void updateMusicInfo(String fileInfoStr, Uri albumUri) {
+    	
+    	ImageView art = (ImageView) findViewById(R.id.playingIcon);
 		TextView info = (TextView) findViewById(R.id.playingInfo);
 		ImageView play = (ImageView) findViewById(R.id.playPauseIcon);
 		
-		if (file != null) {
+		if (fileInfoStr != null) {
 			try {
-	    		InputStream in = getContentResolver().openInputStream(file.getImageUri());
+	    		InputStream in = getContentResolver().openInputStream(albumUri);
 	    		Bitmap bitmap = BitmapFactory.decodeStream(in);
 	    		art.setImageBitmap(bitmap);
 	    	}
@@ -375,7 +399,7 @@ public class MusicPlayerTabWidget extends TabActivity {
 	    		art.setImageResource(R.drawable.ic_tab_artists_white);
 	    	}
 			
-			info.setText(file.toString());
+			info.setText(fileInfoStr);
 			play.setImageResource(R.drawable.play);
 		}
 		else {
