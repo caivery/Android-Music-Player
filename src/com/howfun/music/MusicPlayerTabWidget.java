@@ -290,13 +290,14 @@ public class MusicPlayerTabWidget extends TabActivity {
 	
 	private void exitMusicPlayer() {
 //		mService.stopSelf();
-		this.finish();
+		
 		
 		this.unbindService(mConnection);
 		
 		Intent intent = new Intent(this, MusicService.class);
         this.stopService(intent);
         
+        this.finish();
 	}
 
 	// ----------------------------------------------------------------
@@ -390,5 +391,12 @@ public class MusicPlayerTabWidget extends TabActivity {
     public void onConfigurationChanged(Configuration newConfig) {
     	super.onConfigurationChanged(newConfig);
     	changeFile(PlayList.instance.getCurrent());
+    }
+    
+    @Override
+    public void onDestroy() {
+    	super.onDestroy();
+    	Utils.log(TAG, "OnDestroy(), unbind Music service.");
+    	this.unbindService(mConnection);
     }
 }
