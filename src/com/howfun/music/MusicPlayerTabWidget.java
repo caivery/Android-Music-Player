@@ -206,6 +206,13 @@ public class MusicPlayerTabWidget extends TabActivity {
         updateHandler.postDelayed(new Updater(), 100);
     }
 	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		
+		this.unbindService(mConnection);
+	}
+	
 	/** Get a Servie from AIDL Binder */
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override

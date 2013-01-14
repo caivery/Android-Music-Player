@@ -25,6 +25,7 @@ package com.howfun.music;
 import java.io.IOException;
 
 import com.howfun.music.control.IMusicService;
+import com.howfun.music.control.MusicData;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -442,6 +443,14 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 		@Override
 		public int getState() throws RemoteException {
 			return mState.ordinal();
+		}
+
+		@Override
+		public MusicData getMusicData() throws RemoteException {
+			Utils.log(TAG, "getMusicData: " + playList.getCurrent().getTitle());
+			
+			MusicData data = new MusicData(playList.getCurrent().getTitle());
+			return data;
 		} 
     	
 	} ; 
