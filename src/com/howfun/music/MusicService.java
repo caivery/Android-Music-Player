@@ -53,7 +53,9 @@ import android.widget.Toast;
  * Rewind, Skip, etc.
  */
 public class MusicService extends Service implements OnCompletionListener, OnPreparedListener,
-                OnErrorListener, MusicFocusable {
+                OnErrorListener {
+//	, MusicFocusable {
+
 
     NotificationManager mNotificationManager;
 
@@ -151,10 +153,11 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         // create the Audio Focus Helper, if the Audio Focus feature is available (SDK 8 or above)
-        if (android.os.Build.VERSION.SDK_INT >= 8)
-            mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
-        else
-            mAudioFocus = AudioFocus.Focused; // no focus feature, so we always "have" audio focus
+//        if (android.os.Build.VERSION.SDK_INT >= 8)
+//            mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
+//        else
+//            mAudioFocus = AudioFocus.Focused; // no focus feature, so we always "have" audio focus
+        mAudioFocus = AudioFocus.Focused; // no focus feature, so we always "have" audio focus
     }
 
     /**
@@ -213,19 +216,19 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 //            mPlayer.seekTo(0);
 //    }
 //
-//    void processStopRequest() {
-//        if (mState == State.Playing || mState == State.Paused) {
-//            mState = State.Stopped;
-//
-//            // let go of all resources...
-//            relaxResources(true);
-//            giveUpAudioFocus();
-//            
-//            // TODO call this when finished
-//            // service is no longer necessary. Will be started again if needed.
-//            stopSelf();
-//        }
-//    }
+    void processStopRequest() {
+        if (mState == State.Playing || mState == State.Paused) {
+            mState = State.Stopped;
+
+            // let go of all resources...
+            relaxResources(true);
+            giveUpAudioFocus();
+            
+            // TODO call this when finished
+            // service is no longer necessary. Will be started again if needed.
+            stopSelf();
+        }
+    }
 
     /**
      * Releases resources used by the service for playback. This includes the "foreground service"
@@ -281,6 +284,22 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
      */
     void say(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+    
+    private Uri getCurAlbumUri() {
+    	if (playList != null) {
+    		if (playList.getCurrent() != null) 
+    			return playList.getCurrent().getImageUri();
+    	}
+    	return null;
+    }
+        
+    private String getCurDisplayString() {
+    	if (playList != null) {
+    		if (playList.getCurrent() != null) 
+    			return playList.getCurrent().toString();
+    	}
+    	return null;
     }
 
     void tryToGetAudioFocus() {
@@ -387,26 +406,26 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
         return true; // true indicates we handled the error
     }
 
-    @Override
-    public void onGainedAudioFocus() {
-        Toast.makeText(getApplicationContext(), "gained audio focus.", Toast.LENGTH_SHORT).show();
-        mAudioFocus = AudioFocus.Focused;
-
-        // restart media player with new focus settings
-        if (mState == State.Playing)
-            configAndStartMediaPlayer();
-    }
-
-    @Override
-    public void onLostAudioFocus(boolean canDuck) {
-        Toast.makeText(getApplicationContext(), "lost audio focus." + (canDuck ? "can duck" :
-            "no duck"), Toast.LENGTH_SHORT).show();
-        mAudioFocus = canDuck ? AudioFocus.NoFocusCanDuck : AudioFocus.NoFocusNoDuck;
-
-        // start/restart/pause media player with new focus settings
-        if (mPlayer != null && mPlayer.isPlaying())
-            configAndStartMediaPlayer();
-    }
+//    @Override
+//    public void onGainedAudioFocus() {
+//        Toast.makeText(getApplicationContext(), "gained audio focus.", Toast.LENGTH_SHORT).show();
+//        mAudioFocus = AudioFocus.Focused;
+//
+//        // restart media player with new focus settings
+//        if (mState == State.Playing)
+//            configAndStartMediaPlayer();
+//    }
+//
+//    @Override
+//    public void onLostAudioFocus(boolean canDuck) {
+//        Toast.makeText(getApplicationContext(), "lost audio focus." + (canDuck ? "can duck" :
+//            "no duck"), Toast.LENGTH_SHORT).show();
+//        mAudioFocus = canDuck ? AudioFocus.NoFocusCanDuck : AudioFocus.NoFocusNoDuck;
+//
+//        // start/restart/pause media player with new focus settings
+//        if (mPlayer != null && mPlayer.isPlaying())
+//            configAndStartMediaPlayer();
+//    }
 
     @Override
     public void onDestroy() {
@@ -446,11 +465,29 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 		}
 
 		@Override
+
 		public MusicData getMusicData() throws RemoteException {
 			Utils.log(TAG, "getMusicData: " + playList.getCurrent().getTitle());
 			
 			MusicData data = new MusicData(playList.getCurrent().getTitle());
 			return data;
+		}
+		
+		public void stop() throws RemoteException {
+			MusicService.this.processStopRequest();
+			
+		}
+
+		@Override
+		public String getCurDisplayStr() throws RemoteException {
+			return MusicService.this.getCurDisplayString();
+		}
+
+		@Override
+		public Uri getAlbumUri() throws RemoteException {
+		
+			return MusicService.this.getCurAlbumUri();
+
 		} 
     	
 	} ; 

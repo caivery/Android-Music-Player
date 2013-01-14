@@ -4,7 +4,7 @@ import android.util.Log;
 
 public class Utils {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	
 	public static final int BUILD_QUAN_ZHI = 0;
 	public static final int BUILD_POLO = 1;
@@ -13,7 +13,7 @@ public class Utils {
 
 	public static void log(String tag, String info) {
 		if (DEBUG) {
-			Log.d("NetsWidget", "=====>" + tag + "---->" + info);
+			Log.d("Music Player", "=====>" + tag + "---->" + info);
 		}
 	}
 }

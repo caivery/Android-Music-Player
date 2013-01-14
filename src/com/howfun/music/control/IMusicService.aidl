@@ -15,4 +15,11 @@ interface IMusicService
     int getState();
     
     MusicData getMusicData();
+
+    void stop();
+    
+    String getCurDisplayStr();
+    
+    Uri getAlbumUri();
+
 } 
