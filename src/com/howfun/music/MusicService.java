@@ -465,14 +465,20 @@ public class MusicService extends Service implements OnCompletionListener, OnPre
 		}
 
 		@Override
-
 		public MusicData getMusicData() throws RemoteException {
-			Utils.log(TAG, "getMusicData: " + playList.getCurrent().getTitle());
+			MusicData data = new MusicData("");
 			
-			MusicData data = new MusicData(playList.getCurrent().getTitle());
+			if (playList != null && playList.getCurrent() != null) {
+				Utils.log(TAG, "getMusicData: " + playList.getCurrent().getTitle());
+
+				data.setTitle(playList.getCurrent().getTitle());
+
+			}
+			
 			return data;
 		}
 		
+		@Override
 		public void stop() throws RemoteException {
 			MusicService.this.processStopRequest();
 			

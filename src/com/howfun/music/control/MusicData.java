@@ -27,6 +27,10 @@ public class MusicData implements Parcelable{
 		mName = title;
 	}
 
+	public MusicData() {
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
 	public int describeContents() {
 		// TODO Auto-generated method stub
@@ -36,6 +40,10 @@ public class MusicData implements Parcelable{
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(mName);
+	}
+
+	public void setTitle(String title) {
+		mName = title;
 	}
 
 
